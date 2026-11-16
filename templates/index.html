@@ -1,0 +1,118 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JARVIS AI</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;background:#020814;color:#00d9ff;
+font-family:Arial,sans-serif;
+text-align:center;min-height:100vh;
+}
+header{padding:22px;font-size:28px;letter-spacing:5px}
+.circle{
+width:220px;height:220px;margin:35px auto;
+border:3px solid #00d9ff;border-radius:50%;
+box-shadow:0 0 35px #0077ff,inset 0 0 25px #0077ff;
+display:flex;align-items:center;justify-content:center;
+animation:pulse 3s infinite;
+}
+.circle span{font-size:22px}
+@keyframes pulse{
+50%{box-shadow:0 0 60px #00d9ff,inset 0 0 45px #0077ff}
+}
+.status{margin:20px;font-size:14px}
+input{
+width:85%;padding:15px;background:#071526;
+color:white;border:1px solid #00d9ff;border-radius:10px;
+}
+button{
+padding:14px 22px;margin:10px;
+background:#003b60;color:#00d9ff;
+border:1px solid #00d9ff;border-radius:10px;
+font-size:16px;
+}
+#reply{padding:20px;color:white;white-space:pre-wrap}
+</style>
+</head>
+
+<body>
+
+<header>J.A.R.V.I.S</header>
+
+<div class="circle"><span>JARVIS ONLINE</span></div>
+
+<div class="status" id="status">SYSTEM READY</div>
+
+<input id="message" placeholder="Talk to JARVIS...">
+
+<br>
+
+<button onclick="ask()">SEND</button>
+<button onclick="listen()">🎙 SPEAK</button>
+
+<div id="reply"></div>
+
+<script>
+const status=document.getElementById("status");
+
+function speak(text){
+const speech=new SpeechSynthesisUtterance(text);
+speech.lang="en-IN";
+speech.rate=1;
+speechSynthesis.speak(speech);
+}
+
+async function ask(){
+const message=document.getElementById("message").value;
+if(!message)return;
+
+status.innerText="JARVIS THINKING...";
+
+try{
+const res=await fetch("/chat",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({message})
+});
+
+const data=await res.json();
+
+document.getElementById("reply").innerText=data.reply;
+status.innerText="JARVIS ONLINE";
+speak(data.reply);
+
+}catch(e){
+status.innerText="CONNECTION ERROR";
+}
+}
+
+function listen(){
+const SpeechRecognition=
+window.SpeechRecognition||window.webkitSpeechRecognition;
+
+if(!SpeechRecognition){
+alert("Voice recognition not supported in this browser");
+return;
+}
+
+const recognition=new SpeechRecognition();
+recognition.lang="en-IN";
+recognition.onstart=()=>status.innerText="LISTENING...";
+recognition.onresult=(event)=>{
+document.getElementById("message").value=
+event.results[0][0].transcript;
+ask();
+};
+recognition.start();
+}
+
+speak("JARVIS system ready");
+</script>
+
+</body>
+</html>

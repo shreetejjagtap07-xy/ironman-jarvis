@@ -19,7 +19,7 @@ def chat():
         message = request.json.get("message", "")
 
         result = client.chat.completions.create(
-            model="openai/gpt-oss-120b"
+            model="openai/gpt-oss-120b",
             messages=[
                 {
                     "role": "system",
@@ -44,3 +44,4 @@ def chat():
 
 if __name__ == "__main__":
     app.run()
+

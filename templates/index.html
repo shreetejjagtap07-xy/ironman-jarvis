@@ -8,111 +8,298 @@
 
 <style>
 *{box-sizing:border-box}
+
 body{
-margin:0;background:#020814;color:#00d9ff;
-font-family:Arial,sans-serif;
-text-align:center;min-height:100vh;
+ margin:0;
+ min-height:100vh;
+ background:radial-gradient(circle at center,#082747,#020711 70%);
+ color:#00d9ff;
+ font-family:Arial,sans-serif;
+ text-align:center;
+ overflow-x:hidden;
 }
-header{padding:22px;font-size:28px;letter-spacing:5px}
-.circle{
-width:220px;height:220px;margin:35px auto;
-border:3px solid #00d9ff;border-radius:50%;
-box-shadow:0 0 35px #0077ff,inset 0 0 25px #0077ff;
-display:flex;align-items:center;justify-content:center;
-animation:pulse 3s infinite;
+
+header{
+ padding:24px 10px 5px;
+ font-size:27px;
+ letter-spacing:7px;
+ text-shadow:0 0 15px #00d9ff;
 }
-.circle span{font-size:22px}
+
+.subtitle{
+ font-size:10px;
+ letter-spacing:4px;
+ color:#76cfff;
+}
+
+.hud{
+ width:260px;
+ height:260px;
+ margin:35px auto 20px;
+ position:relative;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+}
+
+.ring{
+ position:absolute;
+ border-radius:50%;
+ border:2px solid #00d9ff;
+ box-shadow:0 0 18px #007bff;
+}
+
+.r1{
+ width:240px;height:240px;
+ border-left-color:transparent;
+ border-right-color:transparent;
+ animation:spin 7s linear infinite;
+}
+
+.r2{
+ width:205px;height:205px;
+ border-top-color:transparent;
+ border-bottom-color:transparent;
+ animation:reverse 5s linear infinite;
+}
+
+.r3{
+ width:155px;height:155px;
+ border-style:dashed;
+ animation:spin 12s linear infinite;
+}
+
+.core{
+ width:115px;height:115px;
+ border-radius:50%;
+ background:radial-gradient(circle,#fff,#00d9ff 25%,#0066ff 65%,#00152b);
+ box-shadow:0 0 25px #00d9ff,0 0 65px #007bff;
+ animation:pulse 2s infinite;
+}
+
+@keyframes spin{
+ to{transform:rotate(360deg)}
+}
+@keyframes reverse{
+ to{transform:rotate(-360deg)}
+}
 @keyframes pulse{
-50%{box-shadow:0 0 60px #00d9ff,inset 0 0 45px #0077ff}
+ 50%{transform:scale(1.12);box-shadow:0 0 80px #00d9ff}
 }
-.status{margin:20px;font-size:14px}
+
+body.active .core{
+ animation:pulse .6s infinite;
+}
+
+.status{
+ margin:15px;
+ font-size:13px;
+ letter-spacing:3px;
+ color:#8ceaff;
+}
+
+.panel{
+ width:90%;
+ max-width:450px;
+ margin:auto;
+}
+
 input{
-width:85%;padding:15px;background:#071526;
-color:white;border:1px solid #00d9ff;border-radius:10px;
+ width:100%;
+ padding:15px;
+ background:#06182a;
+ color:white;
+ border:1px solid #00bfff;
+ border-radius:12px;
+ outline:none;
+ font-size:16px;
 }
+
 button{
-padding:14px 22px;margin:10px;
-background:#003b60;color:#00d9ff;
-border:1px solid #00d9ff;border-radius:10px;
-font-size:16px;
+ padding:13px 20px;
+ margin:10px 4px;
+ border-radius:30px;
+ border:1px solid #00d9ff;
+ background:#062e50;
+ color:#00d9ff;
+ font-size:14px;
+ cursor:pointer;
+ box-shadow:0 0 12px #005b99;
 }
-#reply{padding:20px;color:white;white-space:pre-wrap}
+
+button:active{
+ background:#007bb5;
+}
+
+#reply{
+ min-height:65px;
+ padding:18px 10px;
+ color:white;
+ line-height:1.6;
+ white-space:pre-wrap;
+}
+
+.footer{
+ margin:25px 0;
+ color:#477e9c;
+ font-size:10px;
+ letter-spacing:3px;
+}
 </style>
 </head>
 
 <body>
 
 <header>J.A.R.V.I.S</header>
+<div class="subtitle">PERSONAL AI SYSTEM</div>
 
-<div class="circle"><span>JARVIS ONLINE</span></div>
+<div class="hud">
+ <div class="ring r1"></div>
+ <div class="ring r2"></div>
+ <div class="ring r3"></div>
+ <div class="core"></div>
+</div>
 
-<div class="status" id="status">SYSTEM READY</div>
+<div class="status" id="status">● SYSTEM ONLINE</div>
 
-<input id="message" placeholder="Talk to JARVIS...">
+<div class="panel">
 
-<br>
+ <input id="message"
+ placeholder="Talk to JARVIS..."
+ autocomplete="off">
 
-<button onclick="ask()">SEND</button>
-<button onclick="listen()">🎙 SPEAK</button>
+ <button onclick="ask()">SEND</button>
+ <button onclick="listen()">🎙 SPEAK</button>
+ <button onclick="stopVoice()">🔇 STOP</button>
 
-<div id="reply"></div>
+ <div id="reply">Hello! I am JARVIS. How may I assist you?</div>
+
+</div>
+
+<div class="footer">STARK TECHNOLOGY • AI CORE</div>
 
 <script>
+
 const status=document.getElementById("status");
 
 function speak(text){
-const speech=new SpeechSynthesisUtterance(text);
-speech.lang="en-IN";
-speech.rate=1;
-speechSynthesis.speak(speech);
+
+ if(!("speechSynthesis" in window))return;
+
+ speechSynthesis.cancel();
+
+ const speech=new SpeechSynthesisUtterance(text);
+
+ speech.lang="en-IN";
+ speech.rate=0.95;
+ speech.pitch=0.9;
+
+ speech.onstart=()=>{
+ document.body.classList.add("active");
+ status.innerText="● JARVIS SPEAKING";
+ };
+
+ speech.onend=()=>{
+ document.body.classList.remove("active");
+ status.innerText="● SYSTEM ONLINE";
+ };
+
+ speechSynthesis.speak(speech);
 }
 
 async function ask(){
-const message=document.getElementById("message").value;
-if(!message)return;
 
-status.innerText="JARVIS THINKING...";
+ const input=document.getElementById("message");
+ const message=input.value.trim();
 
-try{
-const res=await fetch("/chat",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({message})
-});
+ if(!message)return;
 
-const data=await res.json();
+ status.innerText="● JARVIS THINKING";
+ document.body.classList.add("active");
 
-document.getElementById("reply").innerText=data.reply;
-status.innerText="JARVIS ONLINE";
-speak(data.reply);
+ try{
 
-}catch(e){
-status.innerText="CONNECTION ERROR";
-}
+ const res=await fetch("/chat",{
+ method:"POST",
+ headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({message})
+ });
+
+ if(!res.ok)throw new Error("Connection failed");
+
+ const data=await res.json();
+
+ document.getElementById("reply").innerText=data.reply;
+
+ document.body.classList.remove("active");
+ status.innerText="● SYSTEM ONLINE";
+
+ speak(data.reply);
+
+ }catch(e){
+
+ document.body.classList.remove("active");
+ status.innerText="● CONNECTION ERROR";
+
+ document.getElementById("reply").innerText=
+ "JARVIS connection unavailable. Please try again.";
+
+ }
 }
 
 function listen(){
-const SpeechRecognition=
-window.SpeechRecognition||window.webkitSpeechRecognition;
 
-if(!SpeechRecognition){
-alert("Voice recognition not supported in this browser");
-return;
+ const SpeechRecognition=
+ window.SpeechRecognition||window.webkitSpeechRecognition;
+
+ if(!SpeechRecognition){
+ alert("Voice recognition is not supported. Try Chrome.");
+ return;
+ }
+
+ const recognition=new SpeechRecognition();
+
+ recognition.lang="mr-IN";
+ recognition.continuous=false;
+ recognition.interimResults=false;
+
+ recognition.onstart=()=>{
+ status.innerText="● LISTENING";
+ document.body.classList.add("active");
+ };
+
+ recognition.onresult=(event)=>{
+ document.getElementById("message").value=
+ event.results[0][0].transcript;
+
+ document.body.classList.remove("active");
+ ask();
+ };
+
+ recognition.onerror=()=>{
+ document.body.classList.remove("active");
+ status.innerText="● VOICE ERROR";
+ };
+
+ recognition.onend=()=>{
+ document.body.classList.remove("active");
+ };
+
+ recognition.start();
 }
 
-const recognition=new SpeechRecognition();
-recognition.lang="en-IN";
-recognition.onstart=()=>status.innerText="LISTENING...";
-recognition.onresult=(event)=>{
-document.getElementById("message").value=
-event.results[0][0].transcript;
-ask();
-};
-recognition.start();
+function stopVoice(){
+ speechSynthesis.cancel();
+ document.body.classList.remove("active");
+ status.innerText="● SYSTEM ONLINE";
 }
 
-speak("JARVIS system ready");
+document.getElementById("message")
+.addEventListener("keydown",function(e){
+ if(e.key==="Enter")ask();
+});
+
 </script>
-
 </body>
 </html>
+

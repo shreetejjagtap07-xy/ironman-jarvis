@@ -19,7 +19,7 @@ def chat():
         message = request.json.get("message", "")
 
         result = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="openai/gpt-oss-120b"
             messages=[
                 {
                     "role": "system",
